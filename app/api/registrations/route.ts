@@ -10,6 +10,15 @@ import {
   validateRegistrationFields,
 } from "@/lib/storage";
 
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    storage: "postgres-bytea",
+    filesystemUploads: false,
+    commit: process.env.VERCEL_GIT_COMMIT_SHA || "local",
+  });
+}
+
 export async function POST(request: Request) {
   const form = await request.formData();
   const fields = registrationFromForm(form);

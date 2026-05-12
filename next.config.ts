@@ -1,7 +1,5 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  output: "standalone", // Often required for complex file structures
-};
+const nextConfig: NextConfig = {};
 
 export default nextConfig;

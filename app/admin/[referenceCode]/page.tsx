@@ -28,6 +28,9 @@ export default async function AdminDetailPage({ params }: Props) {
           <a className="button" href={`/api/admin/nametag/${registration.referenceCode}`}>
             Download name tag PDF
           </a>
+          <a className="button" href={`/api/admin/registrations/${registration.referenceCode}/pdf`}>
+            Export registration PDF
+          </a>
         </div>
         <div className="detail-list">
           {[

@@ -23,6 +23,7 @@ export default async function AdminPage() {
               <th>Organization</th>
               <th>Ticket</th>
               <th>Submitted</th>
+              <th>Export</th>
             </tr>
           </thead>
           <tbody>
@@ -37,6 +38,11 @@ export default async function AdminPage() {
                 <td>{registration.organization}</td>
                 <td>{registration.ticketType}</td>
                 <td>{new Date(registration.createdAt).toLocaleString()}</td>
+                <td>
+                  <a href={`/api/admin/registrations/${registration.referenceCode}/pdf`}>
+                    PDF
+                  </a>
+                </td>
               </tr>
             ))}
           </tbody>

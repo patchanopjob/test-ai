@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/auth";
-import { createNameTagPdf } from "@/lib/pdf";
+import { createRegistrationDetailsPdf } from "@/lib/pdf";
 import { findRegistration } from "@/lib/storage";
 
 type Context = {
@@ -18,11 +18,11 @@ export async function GET(_request: Request, { params }: Context) {
     return NextResponse.json({ error: "Registration not found." }, { status: 404 });
   }
 
-  const pdf = createNameTagPdf(registration);
+  const pdf = createRegistrationDetailsPdf(registration);
   return new NextResponse(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${registration.referenceCode}-nametag.pdf"`,
+      "Content-Disposition": `attachment; filename="${registration.referenceCode}-registration.pdf"`,
     },
   });
 }

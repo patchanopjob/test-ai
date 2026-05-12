@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createNameTagPdf } from "@/lib/pdf";
+import { createNameTagPdf, createRegistrationDetailsPdf } from "@/lib/pdf";
 import type { Registration } from "@/lib/types";
 
 const registration: Registration = {
@@ -31,5 +31,18 @@ describe("createNameTagPdf", () => {
     expect(body).toContain("%%EOF");
     expect(body).toContain("Ada \\(Countess\\) \\\\ Lovelace");
     expect(body).toContain("Reference: EVT-2026-ABC123");
+  });
+});
+
+describe("createRegistrationDetailsPdf", () => {
+  it("creates a registration export PDF with attendee details", () => {
+    const pdf = createRegistrationDetailsPdf(registration);
+    const body = pdf.toString("utf8");
+
+    expect(body.startsWith("%PDF-1.4")).toBe(true);
+    expect(body).toContain("Registration Details");
+    expect(body).toContain("ada@example.com");
+    expect(body).toContain("Speaker");
+    expect(body).toContain("EVT-2026-ABC123");
   });
 });

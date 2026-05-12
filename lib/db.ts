@@ -43,6 +43,14 @@ export async function ensureDatabase() {
       created_at timestamptz not null default now(),
       updated_at timestamptz not null default now()
     );
+
+    create table if not exists registration_documents (
+      reference_code text not null references registrations(reference_code) on delete cascade,
+      stored_name text not null,
+      data bytea not null,
+      created_at timestamptz not null default now(),
+      primary key (reference_code, stored_name)
+    );
   `);
   initialized = true;
 }

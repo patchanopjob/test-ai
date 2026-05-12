@@ -1,8 +1,7 @@
-import fs from "fs/promises";
 import { NextResponse } from "next/server";
 import { getSubmissionAuth, isAdminAuthenticated } from "@/lib/auth";
 import {
-  documentPath,
+  deleteUploadedFile,
   findRegistration,
   registrationFromForm,
   saveUploadedFiles,
@@ -38,7 +37,7 @@ export async function PUT(request: Request, { params }: Context) {
   const remainingDocuments = [];
   for (const document of current.documents) {
     if (removeIds.includes(document.id)) {
-      await fs.rm(documentPath(referenceCode, document.storedName), { force: true });
+      await deleteUploadedFile(referenceCode, document.storedName);
     } else {
       remainingDocuments.push(document);
     }

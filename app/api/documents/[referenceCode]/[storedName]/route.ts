@@ -1,7 +1,6 @@
-import fs from "fs/promises";
 import { NextResponse } from "next/server";
 import { getSubmissionAuth, isAdminAuthenticated } from "@/lib/auth";
-import { documentPath, findRegistration } from "@/lib/storage";
+import { findRegistration, readUploadedFile } from "@/lib/storage";
 
 type Context = {
   params: Promise<{ referenceCode: string; storedName: string }>;
@@ -21,8 +20,12 @@ export async function GET(_request: Request, { params }: Context) {
     return NextResponse.json({ error: "Document not found." }, { status: 404 });
   }
 
-  const file = await fs.readFile(documentPath(referenceCode, storedName));
-  return new NextResponse(file, {
+  const file = await readUploadedFile(referenceCode, storedName);
+  if (!file) {
+    return NextResponse.json({ error: "Document file not found." }, { status: 404 });
+  }
+
+  return new NextResponse(new Uint8Array(file), {
     headers: {
       "Content-Type": document.mimeType,
       "Content-Disposition": `attachment; filename="${document.originalName.replace(/"/g, "")}"`,

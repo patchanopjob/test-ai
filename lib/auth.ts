@@ -35,7 +35,10 @@ export function readSignedValue(raw?: string) {
   const value = raw.slice(0, index);
   const sig = raw.slice(index + 1);
   const expected = sign(value);
-  if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
+  const signatureBuffer = Buffer.from(sig);
+  const expectedBuffer = Buffer.from(expected);
+  if (signatureBuffer.length !== expectedBuffer.length) return null;
+  if (!crypto.timingSafeEqual(signatureBuffer, expectedBuffer)) return null;
   return value;
 }
 

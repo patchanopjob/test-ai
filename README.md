@@ -12,6 +12,6 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-Registrations are stored in PostgreSQL using the `PG_*` values from `.env.local` or `.env`. Uploaded files are stored in `uploads/`.
+Registrations and uploaded document files are stored in PostgreSQL using the `PG_*` values from `.env.local` or `.env`.
 
-The app creates the `registrations` table automatically on first database access.
+The app creates the `registrations` and `registration_documents` tables automatically on first database access.

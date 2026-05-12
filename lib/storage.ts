@@ -1,15 +1,6 @@
-import fs from "fs/promises";
-import path from "path";
 import crypto from "crypto";
 import type { PublicRegistration, Registration, SupportingDocument } from "./types";
 import { query } from "./db";
-
-const root = process.cwd();
-const uploadDir = path.join(root, "uploads");
-
-async function ensureStorage() {
-  await fs.mkdir(uploadDir, { recursive: true });
-}
 
 type RegistrationRow = {
   reference_code: string;
@@ -157,6 +148,28 @@ export async function updateRegistration(registration: Registration) {
   );
 }
 
+export async function deleteUploadedFile(referenceCode: string, storedName: string) {
+  await query(
+    `
+      delete from registration_documents
+      where reference_code = $1 and stored_name = $2
+    `,
+    [referenceCode, storedName],
+  );
+}
+
+export async function readUploadedFile(referenceCode: string, storedName: string) {
+  const result = await query<{ data: Buffer }>(
+    `
+      select data
+      from registration_documents
+      where reference_code = $1 and stored_name = $2
+    `,
+    [referenceCode, storedName],
+  );
+  return result.rows[0]?.data || null;
+}
+
 export function toPublicRegistration(registration: Registration): PublicRegistration {
   const { passwordHash: _passwordHash, ...publicRegistration } = registration;
   return publicRegistration;
@@ -194,10 +207,6 @@ export function validateRegistrationFields(fields: ReturnType<typeof registratio
 }
 
 export async function saveUploadedFiles(referenceCode: string, files: File[]) {
-  await ensureStorage();
-  const referenceDir = path.join(uploadDir, referenceCode);
-  await fs.mkdir(referenceDir, { recursive: true });
-
   const documents: SupportingDocument[] = [];
   for (const file of files) {
     if (!file || file.size === 0) continue;
@@ -205,7 +214,13 @@ export async function saveUploadedFiles(referenceCode: string, files: File[]) {
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const storedName = `${id}-${safeName}`;
     const bytes = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(path.join(referenceDir, storedName), bytes);
+    await query(
+      `
+        insert into registration_documents (reference_code, stored_name, data)
+        values ($1, $2, $3)
+      `,
+      [referenceCode, storedName, bytes],
+    );
     documents.push({
       id,
       originalName: file.name,
@@ -216,8 +231,4 @@ export async function saveUploadedFiles(referenceCode: string, files: File[]) {
     });
   }
   return documents;
-}
-
-export function documentPath(referenceCode: string, storedName: string) {
-  return path.join(uploadDir, referenceCode, storedName);
 }

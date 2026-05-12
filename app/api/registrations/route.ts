@@ -6,6 +6,7 @@ import {
   referenceCodeExists,
   registrationFromForm,
   saveUploadedFiles,
+  updateRegistration,
   validateRegistrationFields,
 } from "@/lib/storage";
 
@@ -28,18 +29,22 @@ export async function POST(request: Request) {
     referenceCode = createReferenceCode();
   }
 
-  const files = form.getAll("documents").filter((item): item is File => item instanceof File);
-  const documents = await saveUploadedFiles(referenceCode, files);
   const now = new Date().toISOString();
-
-  await createRegistration({
+  const registration = {
     referenceCode,
     passwordHash: hashPassword(password),
     ...fields,
-    documents,
+    documents: [],
     createdAt: now,
     updatedAt: now,
-  });
+  };
+
+  await createRegistration(registration);
+  const files = form.getAll("documents").filter((item): item is File => item instanceof File);
+  const documents = await saveUploadedFiles(referenceCode, files);
+  if (documents.length) {
+    await updateRegistration({ ...registration, documents });
+  }
   await setSubmissionAuth(referenceCode);
 
   return NextResponse.json({ referenceCode });
